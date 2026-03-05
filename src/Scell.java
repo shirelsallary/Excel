@@ -35,27 +35,85 @@ public class Scell {
         return (!isNumber(text) && text.charAt(0) != '=');
     }
 
-    // Check if the string is a formula
+    // Checks if the given string is a valid formula.
+// A valid formula must start with '=' and contain a mathematically valid expression.
     public boolean isForm(String str) {
 
+        // Formula cannot be null or too short (must contain at least '=' and something after)
         if (str == null || str.length() < 2) return false;
 
+        // Formula must start with '='
         if (str.charAt(0) != '=') return false;
 
+        // Remove '=' to check the actual mathematical expression
         String text = str.substring(1);
+
+        // First check that parentheses are balanced
+        if (!checkBrackets(text)) return false;
+
+        // Then check mathematical validity (operators, numbers, etc.)
+        return checkMathExpression(text);
+    }
+
+
+    // Checks that parentheses are balanced and appear in the correct order
+    private boolean checkBrackets(String text) {
 
         int bracketCount = 0;
 
         for (char c : text.toCharArray()) {
 
+            // Opening parenthesis increases the counter
             if (c == '(') bracketCount++;
 
+            // Closing parenthesis decreases the counter
             if (c == ')') bracketCount--;
 
+            // If counter becomes negative → closing bracket appeared before opening
             if (bracketCount < 0) return false;
         }
 
+        // At the end the counter must be zero (all parentheses closed)
         return bracketCount == 0;
+    }
+
+
+    // Checks the mathematical correctness of the expression
+// Ensures that operators are placed correctly and that illegal characters are not used
+    private boolean checkMathExpression(String text) {
+
+        boolean lastWasOperator = true; // At start we expect a number/variable, not an operator
+
+        for (int i = 0; i < text.length(); i++) {
+
+            char c = text.charAt(i);
+
+            // If current character is an operator
+            if ("+-*/".indexOf(c) != -1) {
+
+                // Two operators in a row → invalid
+                if (lastWasOperator) return false;
+
+                lastWasOperator = true;
+            }
+
+            // Valid characters: digits, decimal point, letters (for cell references), parentheses
+            else if (Character.isDigit(c) || c == '.' || Character.isLetter(c) || c == '(' || c == ')') {
+
+                // If it's not parentheses we mark that we saw a value
+                if (c != '(' && c != ')') {
+                    lastWasOperator = false;
+                }
+            }
+
+            // Any other character is illegal in a formula
+            else {
+                return false;
+            }
+        }
+
+        // Expression cannot end with an operator
+        return !lastWasOperator;
     }
 
     // Recursively compute a formula
