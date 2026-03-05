@@ -1,6 +1,48 @@
 public class Scell {
 
     private String text;
+    // type of the cell: 0 = TEXT, 1 = NUMBER, 2 = FORM
+    private int type;
+    private int order;
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int t) {
+        order = t;
+    }
+
+
+    // Determines the type of the cell according to its content
+    public void updateType() {
+
+        if (text == null || text.isEmpty()) {
+            type = 0;
+        }
+
+        else if (isNumber(text)) {
+            type = 1;
+        }
+
+        else if (isForm(text)) {
+            type = 2;
+        }
+
+        else {
+            type = 0;
+        }
+    }
+
+    // Returns the type of the cell
+    public int getType() {
+        return type;
+    }
+
+    // Sets the type manually
+    public void setType(int t) {
+        type = t;
+    }
 
     public Scell(String text) {
         this.text = text;
