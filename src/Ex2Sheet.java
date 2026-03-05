@@ -90,14 +90,20 @@ public class Ex2Sheet implements Sheet {
                         String result = eval(x, y); // compute the value
 
                         Cell_Inerface c = table[x][y];
+                        String data = c.getData(); // original cell content
 
-                        // update the cell type according to the result
+                        // update the cell type according to original content
                         if (result.equals("Err_Form")) {
                             c.setType(Ex2Utils.ERR_FORM_FORMAT);
                         }
 
                         else if (result.equals("Err_Cycle")) {
                             c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                        }
+
+                        // if the original data started with '=' → it's a formula
+                        else if (data != null && data.startsWith("=")) {
+                            c.setType(Ex2Utils.FORM);
                         }
 
                         else if (((Scell)c).isNumber(result)) {

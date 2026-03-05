@@ -50,6 +50,7 @@ public class Scell  implements Cell_Inerface {
 
     public Scell(String text) {
         this.Data = text;
+        updateType(); // determine cell type
     }
 
     public Scell() {}
