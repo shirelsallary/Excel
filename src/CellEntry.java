@@ -40,10 +40,8 @@ public class CellEntry implements Index2D{
         try {
             // Parse the numeric part (row index)
             int y = Integer.parseInt(index.substring(1));
-
             // Row must be between 0 and 99
             return y >= 0 && y <= 99;
-
         } catch (Exception e) {
             // If parsing fails the index is invalid
             return false;
