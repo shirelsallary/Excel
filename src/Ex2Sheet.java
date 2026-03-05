@@ -1,5 +1,5 @@
 import java.io.IOException;
-
+import java.io.*;
 
 public class Ex2Sheet implements Sheet {
     private Cell_Inerface[][] table;
@@ -25,14 +25,12 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public String value(int x, int y) {
-        String ans = Ex2Utils.EMPTY_CELL;
-        // Add your code here
-
-        Cell_Inerface c = get(x,y);
-        if(c!=null) {ans = c.toString();}
-
-        /////////////////////
-        return ans;
+        // if coordinates are outside the sheet → return empty
+        if (!isIn(x, y)) {
+            return Ex2Utils.EMPTY_CELL;
+        }
+        // return the computed value of the cell
+        return eval(x, y);
     }
 
     @Override
@@ -58,10 +56,12 @@ public class Ex2Sheet implements Sheet {
     public int width() {
         return table.length;
     }
+
     @Override
     public int height() {
         return table[0].length;
     }
+
     @Override
     public void set(int x, int y, String s) {
 
@@ -71,6 +71,7 @@ public class Ex2Sheet implements Sheet {
         Cell_Inerface c = new Scell(s); // create a new cell with the given content
         table[x][y] = c; // place the cell in the table
     }
+
     @Override
     //Computes all cells in the sheet based on dependency order
     public void eval() {
@@ -121,17 +122,71 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public void load(String fileName) throws IOException {
-        // Add your code here
 
-        /////////////////////
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+
+        // clear the sheet
+        for (int x = 0; x < width(); x++) {
+            for (int y = 0; y < height(); y++) {
+                table[x][y] = new Scell("");
+            }
+        }
+
+        // skip header
+        reader.readLine();
+
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+
+            String[] parts = line.split(",");
+
+            if (parts.length >= 3) {
+
+                try {
+
+                    int x = Integer.parseInt(parts[0]);
+                    int y = Integer.parseInt(parts[1]);
+                    String data = parts[2];
+
+                    if (isIn(x, y)) {
+                        set(x, y, data);
+                    }
+
+                } catch (Exception e) {
+                    // ignore invalid lines
+                }
+            }
+        }
+
+        reader.close();
+
+        eval(); // recompute formulas
     }
 
     @Override
     public void save(String fileName) throws IOException {
-        // Add your code here
 
-        /////////////////////
+        PrintWriter writer = new PrintWriter(new FileWriter(fileName));
+
+        // header line (ignored when loading)
+        writer.println("I2CS ArielU: SpreadSheet (Ex2)");
+
+        for (int x = 0; x < width(); x++) {
+            for (int y = 0; y < height(); y++) {
+
+                String data = table[x][y].getData();
+
+                // save only non-empty cells
+                if (data != null && !data.equals("")) {
+                    writer.println(x + "," + y + "," + data);
+                }
+            }
+        }
+
+        writer.close();
     }
+
     @Override
     public String eval(int x, int y) {
 
@@ -318,6 +373,16 @@ public class Ex2Sheet implements Sheet {
         }
 
         return true; // all dependencies already computed
+    }
+
+    @Override
+    public Cell_Inerface get(int x, int y) {
+
+        if (!isIn(x, y)) { // if coordinates are outside the sheet
+            return null;
+        }
+
+        return table[x][y]; // return the requested cell
     }
 
 
