@@ -213,8 +213,7 @@ public class Ex2Sheet implements Sheet {
 
                 String formula = text.substring(1); // remove '='
 
-                formula = resolveCellReferences(formula); // replace A0,B1 etc with values
-
+                formula = resolveCellReferences(formula, x, y); // pass current cell coordinates
                 if(formula.equals("Err_Form")) { // reference error
                     return "Err_Form";
                 }
@@ -231,55 +230,58 @@ public class Ex2Sheet implements Sheet {
     }
 
     // Replaces cell references (like A0, B3) with their computed values
-    private String resolveCellReferences(String formula) {
+    private String resolveCellReferences(String formula, int currentX, int currentY) {
 
         StringBuilder resolved = new StringBuilder(); // build the new formula
-        int i = 0; // pointer that scans the formula
+        int i = 0; // pointer scanning the formula
 
         while (i < formula.length()) {
 
             char c = formula.charAt(i);
 
-            // if we see a letter → start of a cell reference
+            // detect start of cell reference
             if (Character.isLetter(c)) {
 
-                int col = Character.toUpperCase(c) - 'A'; // convert A,B,C → 0,1,2
+                int col = Character.toUpperCase(c) - 'A';
 
-                int numberStart = i + 1; // start reading the row number
+                int numberStart = i + 1;
 
-                // read all digits of the row (for cases like A12)
+                // read row digits
                 while (numberStart < formula.length() &&
                         Character.isDigit(formula.charAt(numberStart))) {
                     numberStart++;
                 }
 
-                int row = Integer.parseInt(formula.substring(i + 1, numberStart)); // parse row index
+                int row = Integer.parseInt(formula.substring(i + 1, numberStart));
 
-                // check if the reference is inside the sheet
+                // check for self reference (cycle)
+                if (col == currentX && row == currentY) {
+                    return "Err_Form";
+                }
+
+                // check bounds
                 if (!isIn(col, row)) {
                     return "Err_Form";
                 }
 
-                // compute the referenced cell value
                 String cellValue = eval(col, row);
 
-                // if referenced cell is invalid → propagate error
                 if (cellValue.equals("Err_Form")) {
                     return "Err_Form";
                 }
 
-                resolved.append(cellValue); // insert the value instead of A0/B1 etc.
+                resolved.append(cellValue);
 
-                i = numberStart; // jump forward after the reference
+                i = numberStart;
 
             } else {
 
-                resolved.append(c); // copy normal characters (+ - * / etc.)
+                resolved.append(c);
                 i++;
             }
         }
 
-        return resolved.toString(); // return the new numeric formula
+        return resolved.toString();
     }
 
     @Override
