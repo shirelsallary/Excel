@@ -1,14 +1,16 @@
-public class Scell {
+public class Scell  implements Cell_Inerface {
 
-    private String text;
+    private String Data;
     // type of the cell: 0 = TEXT, 1 = NUMBER, 2 = FORM
     private int type;
     private int order;
 
+    @Override
     public int getOrder() {
         return order;
     }
 
+    @Override
     public void setOrder(int t) {
         order = t;
     }
@@ -17,15 +19,15 @@ public class Scell {
     // Determines the type of the cell according to its content
     public void updateType() {
 
-        if (text == null || text.isEmpty()) {
+        if (Data == null || Data.isEmpty()) {
             type = 0;
         }
 
-        else if (isNumber(text)) {
+        else if (isNumber(Data)) {
             type = 1;
         }
 
-        else if (isForm(text)) {
+        else if (isForm(Data)) {
             type = 2;
         }
 
@@ -34,28 +36,30 @@ public class Scell {
         }
     }
 
+    @Override
     // Returns the type of the cell
     public int getType() {
         return type;
     }
 
+    @Override
     // Sets the type manually
     public void setType(int t) {
         type = t;
     }
 
     public Scell(String text) {
-        this.text = text;
+        this.Data = text;
     }
 
     public Scell() {}
-
-    public String getText() {
-        return text;
+@Override
+    public String getData() {
+        return Data;
     }
-
-    public void setText(String text) {
-        this.text = text;
+@Override
+    public void setData(String text) {
+        this.Data = text;
     }
 
     // Check if the string is a valid number
