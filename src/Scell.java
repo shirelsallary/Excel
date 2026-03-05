@@ -101,7 +101,8 @@ public class Scell {
             else if (Character.isDigit(c) || c == '.' || Character.isLetter(c) || c == '(' || c == ')') {
 
                 // If it's not parentheses we mark that we saw a value
-                if (c != '(' && c != ')') {
+                if (c != '(' && c != ')')
+                {
                     lastWasOperator = false;
                 }
             }

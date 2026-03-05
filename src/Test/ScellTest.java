@@ -40,6 +40,7 @@ public class ScellTest {
         assertEquals(6.0, cell.computeForm("=1+2+3"));
         assertEquals(5.0, cell.computeForm("=10-3-2"));
         assertEquals(11.0, cell.computeForm("=(2+3)*(4-2)+1"));
+
     }
 
     @Test
