@@ -116,65 +116,6 @@ public class Scell {
         return !lastWasOperator;
     }
 
-    // Recursively compute a formula
-    public double computeForm(String form) {
-
-        if (form.charAt(0) == '=') {
-            form = form.substring(1);
-        }
-
-        if (isNumber(form)) {
-            return Double.parseDouble(form);
-        }
-
-        // Handle parentheses
-        if (form.startsWith("(") && form.endsWith(")")) {
-            return computeForm(form.substring(1, form.length() - 1));
-        }
-
-        // Addition
-        if (form.contains("+")) {
-            int ind = form.indexOf("+");
-
-            double left = computeForm(form.substring(0, ind));
-            double right = computeForm(form.substring(ind + 1));
-
-            return left + right;
-        }
-
-        // Subtraction
-        if (form.contains("-")) {
-            int ind = form.indexOf("-");
-
-            double left = computeForm(form.substring(0, ind));
-            double right = computeForm(form.substring(ind + 1));
-
-            return left - right;
-        }
-
-        // Multiplication
-        if (form.contains("*")) {
-            int ind = form.indexOf("*");
-
-            double left = computeForm(form.substring(0, ind));
-            double right = computeForm(form.substring(ind + 1));
-
-            return left * right;
-        }
-
-        // Division
-        if (form.contains("/")) {
-            int ind = form.indexOf("/");
-
-            double left = computeForm(form.substring(0, ind));
-            double right = computeForm(form.substring(ind + 1));
-
-            return left / right;
-        }
-
-        return Double.parseDouble(form);
-    }
-
     // Check if a character is an allowed operator
     public boolean allowedSign(char sign) {
 
@@ -193,6 +134,115 @@ public class Scell {
         for (int i = 0; i < str.length(); i++) {
 
             if (Character.isLetter(str.charAt(i))) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    // Recursively computes the value of a formula
+    public double computeForm(String form) {
+
+        // Remove '=' if exists
+        if (form.startsWith("=")) {
+            form = form.substring(1);
+        }
+
+        form = form.trim();
+
+        // If the expression is just a number
+        if (isNumber(form)) {
+            return Double.parseDouble(form);
+        }
+
+        // Remove outer parentheses ONLY if they wrap the entire expression
+        if (hasOuterParentheses(form)) {
+            return computeForm(form.substring(1, form.length() - 1));
+        }
+
+        // Find the main operator outside parentheses
+        int opIndex = findMainOperator(form);
+
+        if (opIndex == -1) {
+            throw new IllegalArgumentException("Invalid formula: " + form);
+        }
+
+        char op = form.charAt(opIndex);
+
+        String left = form.substring(0, opIndex);
+        String right = form.substring(opIndex + 1);
+
+        double leftVal = computeForm(left);
+        double rightVal = computeForm(right);
+
+        switch (op) {
+            case '+': return leftVal + rightVal;
+            case '-': return leftVal - rightVal;
+            case '*': return leftVal * rightVal;
+            case '/': return leftVal / rightVal;
+        }
+
+        throw new IllegalArgumentException("Invalid operator");
+    }
+
+
+    // Checks if the parentheses at the edges wrap the whole expression
+    private boolean hasOuterParentheses(String form) {
+
+        if (!form.startsWith("(") || !form.endsWith(")")) {
+            return false;
+        }
+
+        int brackets = 0;
+
+        for (int i = 0; i < form.length(); i++) {
+
+            char c = form.charAt(i);
+
+            if (c == '(') brackets++;
+            if (c == ')') brackets--;
+
+            // If we closed all parentheses before the end,
+            // then the outer parentheses do NOT wrap the whole expression
+            if (brackets == 0 && i < form.length() - 1) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    // Finds the main operator outside parentheses
+    private int findMainOperator(String form) {
+
+        int brackets = 0;
+
+        // First search for + or -
+        for (int i = form.length() - 1; i >= 0; i--) {
+
+            char c = form.charAt(i);
+
+            if (c == ')') brackets++;
+            else if (c == '(') brackets--;
+
+            else if (brackets == 0 && (c == '+' || c == '-')) {
+                return i;
+            }
+        }
+
+        brackets = 0;
+
+        // Then search for * or /
+        for (int i = form.length() - 1; i >= 0; i--) {
+
+            char c = form.charAt(i);
+
+            if (c == ')') brackets++;
+            else if (c == '(') brackets--;
+
+            else if (brackets == 0 && (c == '*' || c == '/')) {
                 return i;
             }
         }

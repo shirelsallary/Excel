@@ -30,6 +30,16 @@ public class ScellTest {
         assertEquals(1.125, cell.computeForm("=(1+2)*3/(4+4)"));
         assertEquals(9.0, cell.computeForm("=(1+2)+(2*(1+2))"));
         assertEquals(13.0, cell.computeForm("=((1+(2+2)*(1+2)))"));
+        assertEquals(11.0, cell.computeForm("=(2+3)*(4-2)+1"));
+        assertEquals(7.0, cell.computeForm("=1+2*3"));
+        assertEquals(9.0, cell.computeForm("=(1+2)*3"));
+        assertEquals(2.0, cell.computeForm("=8/4"));
+        assertEquals(3.5, cell.computeForm("=7/2"));
+        assertEquals(14.0, cell.computeForm("=2*(3+4)"));
+        assertEquals(13.0, cell.computeForm("=((1+(2+2)*(1+2)))"));
+        assertEquals(6.0, cell.computeForm("=1+2+3"));
+        assertEquals(5.0, cell.computeForm("=10-3-2"));
+        assertEquals(11.0, cell.computeForm("=(2+3)*(4-2)+1"));
     }
 
     @Test
