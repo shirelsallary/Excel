@@ -1,21 +1,7 @@
-public class  Ex2GUI{
-
 import java.awt.*;
 import java.io.IOException;
 
-    /**
-     * ArielU. Intro2CS, Ex2: https://docs.google.com/document/d/1-18T-dj00apE4k1qmpXGOaqttxLn-Kwi/edit?usp=sharing&ouid=113711744349547563645&rtpof=true&sd=true
-     * DO NOT CHANGE THIS INTERFACE!!
-     * This is NOT a Junit class - as it tests GUI components which
-     * should not be tested using Junit.
-     *
-     * The Code uses the STDDraw class:
-     * https://introcs.cs.princeton.edu/java/stdlib/javadoc/StdDraw.html
-     * Note: a few minor changes were added to STDDraw suit the logic of Ex2:
-     * @author boaz.benmoshe
-     *
-     */
-
+public class  Ex2GUI{
 
     private static Sheet table; // this is the main data (an implementation of the Sheet interface).
     private static Index2D cord = null; // a table entry used by the GUI of setting up a cell value / form
@@ -106,7 +92,7 @@ import java.io.IOException;
             double xc = x_start + x * x_space;
             for (int y = 0; y < max_y; y = y + 1) {
                 String w = table.value(x, y);//""+abc[x]+y;
-                Cell cc = table.get(x, y);
+                Cell_Inerface cc = table.get(x, y);
                 int t = cc.getType();
                 StdDrawEx2.setPenColor(getColorFromType(t));
                 int max = Math.min(Ex2Utils.MAX_CHARS, w.length());
@@ -124,7 +110,7 @@ import java.io.IOException;
      */
     private static void inputCell(int xx,int yy) {
         if(table.isIn(xx,yy)) {
-            Cell cc = table.get(xx,yy);
+            Cell_Inerface cc = table.get(xx,yy);
             String ww = cord+": "+cc.toString()+" : ";
             StdDrawEx2.text(Ex2Utils.GUI_X_START, Ex2Utils.MAX_X-1, ww);
             StdDrawEx2.show();

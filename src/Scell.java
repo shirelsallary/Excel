@@ -1,7 +1,7 @@
 public class Scell  implements Cell_Inerface {
 
     private String Data;
-    // type of the cell: 0 = TEXT, 1 = NUMBER, 2 = FORM
+
     private int type;
     private int order;
 
@@ -20,19 +20,19 @@ public class Scell  implements Cell_Inerface {
     public void updateType() {
 
         if (Data == null || Data.isEmpty()) {
-            type = 0;
-        }
-
-        else if (isNumber(Data)) {
             type = 1;
         }
 
-        else if (isForm(Data)) {
+        else if (isNumber(Data)) {
             type = 2;
         }
 
+        else if (isForm(Data)) {
+            type = 3;
+        }
+
         else {
-            type = 0;
+            type = 1;
         }
     }
 
