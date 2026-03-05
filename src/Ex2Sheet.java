@@ -72,11 +72,44 @@ public class Ex2Sheet implements Sheet {
         table[x][y] = c; // place the cell in the table
     }
     @Override
+    //Computes all cells in the sheet based on dependency order
     public void eval() {
-        int[][] dd = depth();
-        // Add your code here
 
-        // ///////////////////
+        int[][] dd = depth(); // compute dependency depth of all cells
+
+        for (int d = 0; d < width() * height(); d++) { // go level by level
+
+            for (int x = 0; x < width(); x++) {
+
+                for (int y = 0; y < height(); y++) {
+
+                    // if this cell belongs to the current depth level
+                    if (dd[x][y] == d) {
+
+                        String result = eval(x, y); // compute the value
+
+                        Cell_Inerface c = table[x][y];
+
+                        // update the cell type according to the result
+                        if (result.equals("Err_Form")) {
+                            c.setType(Ex2Utils.ERR_FORM_FORMAT);
+                        }
+
+                        else if (result.equals("Err_Cycle")) {
+                            c.setType(Ex2Utils.ERR_CYCLE_FORM);
+                        }
+
+                        else if (((Scell)c).isNumber(result)) {
+                            c.setType(Ex2Utils.NUMBER);
+                        }
+
+                        else {
+                            c.setType(Ex2Utils.TEXT);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -192,6 +225,99 @@ public class Ex2Sheet implements Sheet {
         }
 
         return resolved.toString(); // return the new numeric formula
+    }
+
+    @Override
+    public int[][] depth() {
+
+        int[][] result = new int[width()][height()]; // depth table
+
+        // initialize all cells as not computed
+        for (int i = 0; i < width(); i++) {
+            for (int j = 0; j < height(); j++) {
+                result[i][j] = -1;
+            }
+        }
+
+        int depth = 0; // current depth layer
+        int count = 0; // how many cells were assigned depth
+        int max = width() * height(); // total cells
+
+        boolean flagC = true; // indicates progress in current iteration
+
+        while (count < max && flagC) {
+            flagC = false; // assume no progress this round
+            for (int x = 0; x < width(); x++) {
+                for (int y = 0; y < height(); y++) {
+                    if (result[x][y] == -1) {
+                        String data = table[x][y].getData(); // cell content
+                        // numbers or text → no dependencies
+                        if (data == null || !data.startsWith("=")) {
+                            result[x][y] = depth;
+                            count += 1;
+                            flagC = true;
+                        }
+                        // formulas → check dependencies
+                        else if (canBeComputedNow(x, y, result)) {
+                            result[x][y] = depth;
+                            count += 1;
+                            flagC = true;
+                        }
+                    }
+                }
+            }
+            depth += 1; // move to next dependency layer
+        }
+        return result; // cells left with -1 indicate cycle
+    }
+
+    // checks if all dependencies of the cell already have depth
+    private boolean canBeComputedNow(int x, int y, int[][] depthTable) {
+
+        Cell_Inerface c = table[x][y];
+        String data = c.getData();
+
+        // numbers or text have no dependencies
+        if (data == null || !data.startsWith("=")) {
+            return true;
+        }
+
+        String formula = data.substring(1); // remove '='
+
+        int i = 0;
+
+        while (i < formula.length()) {
+
+            char ch = formula.charAt(i);
+
+            // detect cell reference
+            if (Character.isLetter(ch)) {
+                int col = Character.toUpperCase(ch) - 'A';
+                int j = i + 1;
+                // read row digits
+                while (j < formula.length() && Character.isDigit(formula.charAt(j))) {
+                    j++;
+                }
+
+                // make sure there is a number after the letter
+                if (j == i + 1) return false;
+                int row = Integer.parseInt(formula.substring(i + 1, j));
+// check bounds
+                if (!isIn(col, row)) {
+                    return false;
+                }
+// check if dependency already computed
+                if (depthTable[col][row] == -1) {
+                    return false;
+                }
+                i = j; // skip reference
+            }
+            else {
+                i++;
+            }
+        }
+
+        return true; // all dependencies already computed
     }
 
 
